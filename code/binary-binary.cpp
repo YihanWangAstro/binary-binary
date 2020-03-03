@@ -94,7 +94,7 @@ auto create_iso_jupiter_system() {
 
 void binary_binary(size_t th_id, std::string const &dir, size_t sim_num, double a_s, double b_factor) {
   char name[100];
-  sprintf(name, "%.0lf-%.0lf.txt", a_s, 8 * b_factor);
+  sprintf(name, "%.0lf-%.0lf.txt", a_s, 5 * b_factor);
 
   std::fstream out_file{dir + "two-binaries-" + name, std::fstream::out};
 
@@ -149,24 +149,26 @@ void binary_binary(size_t th_id, std::string const &dir, size_t sim_num, double 
 int main(int argc, char **argv) {
   size_t sim_num;
   std::string output_dir;
-
-  tools::read_command_line(argc, argv, output_dir, sim_num);
+  double a = 1;
+  tools::read_command_line(argc, argv, output_dir, sim_num, a);
 
   // std::array<double, 1> incs = {0_deg};
 
-  std::array<double, 4> a_s = {1_AU, 5_AU, 25_AU, 125_AU};
-  std::array<double, 7> b_factors = {0.125, 0.25, 0.5, 1, 2, 4, 8};
+  // std::array<double, 4> a_s = {1_AU, 5_AU, 25_AU, 125_AU};
+  // std::array<double, 7> b_factors = {0.125, 0.25, 0.5, 1, 2, 4, 8};
 
   std::vector<std::thread> threads;
 
   size_t th_id = 0;
-
-  for (auto a : a_s) {
-    for (auto b : b_factors) {
-      threads.emplace_back(std::thread{binary_binary, th_id, output_dir, sim_num, a, b});
-      th_id++;
-    }
+  double b_factor_max = 8;
+  double db = 0.2;
+  // for (auto a : a_s) {
+  // for (auto b : b_factors) {
+  for (double b = 1; b < b_factor_max; b += db) {
+    threads.emplace_back(std::thread{binary_binary, th_id, output_dir, sim_num, a, b});
+    th_id++;
   }
+  //}
 
   for (auto &th : threads) {
     th.join();
