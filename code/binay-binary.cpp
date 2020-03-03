@@ -101,8 +101,6 @@ void binary_binary(size_t th_id, std::string const &dir, size_t sim_num, double 
   double const tidal_factor = 1e-5;
 
   for (size_t i = 0; i < sim_num; ++i) {
-    bool is_stay = false;
-
     Particle star1{1_Ms, 1_Rs}, star2{1_Ms, 1_Rs};
 
     auto [sun, jupiter, jupiter_orbit] = create_iso_jupiter_system();
@@ -111,7 +109,7 @@ void binary_binary(size_t th_id, std::string const &dir, size_t sim_num, double 
 
     move_particles(binary_orbit, star2);
 
-    auto const b = (jupiter_orbit.a + binary_orbit.a) * b_factor;
+    auto const b = (jupiter_orbit.a + binary_orbit.a * 0.5) * b_factor;
 
     auto const w = random::Uniform(0, 2 * consts::pi);
 
