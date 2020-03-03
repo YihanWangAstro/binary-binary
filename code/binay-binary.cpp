@@ -152,8 +152,6 @@ int main(int argc, char **argv) {
 
   tools::read_command_line(argc, argv, output_dir, sim_num);
 
-  // std::array<double, 1> incs = {0_deg};
-
   std::array<double, 4> a_s = {1_AU, 5_AU, 25_AU, 125_AU};
   std::array<double, 7> b_factors = {0.125, 0.25, 0.5, 1, 2, 4, 8};
 
