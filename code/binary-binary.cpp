@@ -65,7 +65,7 @@ auto create_jupiter_system(double inc) {
 
   Particle sun{1_Ms, 1_Rs}, jupiter{m_jup, r_jup};
 
-  auto jupiter_orbit = EllipOrbit{sun.mass, jupiter.mass, a_jup, 0, inc, 0, 0, random::Uniform(0, 2 * consts::pi)};
+  auto jupiter_orbit = EllipOrbit{sun.mass, jupiter.mass, a_jup, 0, inc, isotherm, isotherm, isotherm};
 
   move_particles(jupiter_orbit, jupiter);
 
@@ -100,18 +100,20 @@ void binary_binary(size_t th_id, std::string const &dir, size_t sim_num, double 
 
   double const tidal_factor = 1e-5;
 
+  double inc = 0.0;
+
   for (size_t i = 0; i < sim_num; ++i) {
     Particle star1{1_Ms, 1_Rs}, star2{1_Ms, 1_Rs};
 
-    auto [sun, jupiter, jupiter_orbit] = create_jupiter_system(0);
+    auto [sun, jupiter, jupiter_orbit] = create_jupiter_system(inc);
 
-    auto binary_orbit = EllipOrbit{star1.mass, star2.mass, a_s, 0, isotherm, isotherm, isotherm, isotherm};
+    auto binary_orbit = EllipOrbit{star1.mass, star2.mass, a_s, 0, inc, isotherm, isotherm, isotherm};
 
     move_particles(binary_orbit, star2);
 
     auto const b = (jupiter_orbit.a + 0.5 * binary_orbit.a) * b_factor;
 
-    auto const w = random::Uniform(0, 2 * consts::pi);
+    auto const w = consts::pi * static_cast<int>(random::Uniform(0, 2));//random::Uniform(0, 2 * consts::pi);
 
     auto const r_start = orbit::tidal_radius(tidal_factor, M_tot(sun, jupiter), M_tot(star1, star2),
                                              2 * jupiter_orbit.a, 2 * binary_orbit.a);
@@ -136,7 +138,7 @@ void binary_binary(size_t th_id, std::string const &dir, size_t sim_num, double 
     args.add_stop_point_operation([&](auto &ptc) {
       auto [a_j, e_j, a_s, e_s] = post_ae(ptc);
 
-      space::display(out_file, i, ptc, a_j, e_j, a_s, e_s);
+      space::display(out_file, i, w, a_j, e_j, a_s, e_s);
       out_file << std::endl;
     });
 
