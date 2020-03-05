@@ -55,7 +55,7 @@ auto jupiter_ejection = [](auto const &ptc) -> bool {
     return false;
   }
 };
-/*
+
 auto create_jupiter_system(double inc) {
   double a_jup = 5.2_AU;
 
@@ -72,8 +72,8 @@ auto create_jupiter_system(double inc) {
   move_to_COM_frame(sun, jupiter);
 
   return std::make_tuple(sun, jupiter, jupiter_orbit);
-}*/
-
+}
+/*
 auto create_iso_jupiter_system() {
   double a_jup = 5.2_AU;
 
@@ -90,11 +90,11 @@ auto create_iso_jupiter_system() {
   move_to_COM_frame(sun, jupiter);
 
   return std::make_tuple(sun, jupiter, jupiter_orbit);
-}
+}*/
 
 void binary_binary(size_t th_id, std::string const &dir, size_t sim_num, double a_s, double b_factor) {
   char name[100];
-  sprintf(name, "%.0lf-%.0lf.txt", a_s, 5 * b_factor);
+  sprintf(name, "%.0lf-%.0lf.txt", a_s, 2 * b_factor);
 
   std::fstream out_file{dir + "two-binaries-" + name, std::fstream::out};
 
@@ -103,7 +103,7 @@ void binary_binary(size_t th_id, std::string const &dir, size_t sim_num, double 
   for (size_t i = 0; i < sim_num; ++i) {
     Particle star1{1_Ms, 1_Rs}, star2{1_Ms, 1_Rs};
 
-    auto [sun, jupiter, jupiter_orbit] = create_iso_jupiter_system();
+    auto [sun, jupiter, jupiter_orbit] = create_jupiter_system(0);
 
     auto binary_orbit = EllipOrbit{star1.mass, star2.mass, a_s, 0, isotherm, isotherm, isotherm, isotherm};
 
@@ -153,18 +153,17 @@ int main(int argc, char **argv) {
   tools::read_command_line(argc, argv, output_dir, sim_num, a);
 
   // std::array<double, 1> incs = {0_deg};
-
   // std::array<double, 4> a_s = {1_AU, 5_AU, 25_AU, 125_AU};
   // std::array<double, 7> b_factors = {0.125, 0.25, 0.5, 1, 2, 4, 8};
 
   std::vector<std::thread> threads;
 
   size_t th_id = 0;
-  double b_factor_max = 8;
-  double db = 0.2;
+  double b_factor_max = 20;
+  double db = 0.5;
   // for (auto a : a_s) {
   // for (auto b : b_factors) {
-  for (double b = 1; b < b_factor_max; b += db) {
+  for (double b = 0.5; b <= b_factor_max; b += db) {
     threads.emplace_back(std::thread{binary_binary, th_id, output_dir, sim_num, a, b});
     th_id++;
   }
