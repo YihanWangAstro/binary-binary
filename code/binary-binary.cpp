@@ -100,7 +100,7 @@ void binary_binary_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
 
   std::fstream state_file{dir + "state-" + name, std::fstream::out};
 
-  double const tidal_factor = 1e-6;
+  double const tidal_factor = 1e-7;
 
   double inc = 0.0;
 
