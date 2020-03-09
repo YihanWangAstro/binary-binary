@@ -10,7 +10,7 @@ constexpr bool coll_detect = true;
 
 constexpr double interact_factor = 0.001;
 
-// double v_inf = 10_kms;
+double v_inf = 10_kms;
 
 // double num_den = 500;
 
