@@ -10,9 +10,9 @@ constexpr bool coll_detect = true;
 
 constexpr double interact_factor = 0.001;
 
-double v_inf = 10_kms;
+// double v_inf = 10_kms;
 
-double num_den = 500;
+// double num_den = 500;
 
 auto collision = [](auto &ptc) -> bool {
   size_t number = ptc.number();
@@ -98,6 +98,8 @@ void binary_binary_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
 
   std::fstream out_file{dir + "two-binaries-" + name, std::fstream::out};
 
+  std::fstream state_file{dir + "state-" + name, std::fstream::out};
+
   double const tidal_factor = 1e-5;
 
   double inc = 0.0;
@@ -157,6 +159,8 @@ void binary_binary_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
 
       space::display(out_file, i, w, is_collided, a_j, e_j, a_s, e_s);
       out_file << std::endl;
+
+      space::display(state_file, i, w, is_collided, ptc, "\r\n");
     });
 
     spacex::SpaceXsim simulator{0, sun, jupiter, star1, star2};
