@@ -100,7 +100,7 @@ void binary_binary_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
 
   std::fstream state_file{dir + "state-" + name, std::fstream::out};
 
-  double const tidal_factor = 1e-5;
+  double const tidal_factor = 1e-6;
 
   double inc = 0.0;
 
@@ -119,8 +119,9 @@ void binary_binary_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
 
     auto const w = consts::pi * static_cast<int>(random::Uniform(0, 2));  // random::Uniform(0, 2 * consts::pi);
 
-    auto const r_start = orbit::tidal_radius(tidal_factor, M_tot(sun, jupiter), M_tot(star1, star2),
-                                             2 * jupiter_orbit.a, 2 * binary_orbit.a);
+    auto const r_start = std::max(orbit::tidal_radius(tidal_factor, M_tot(sun, jupiter), M_tot(star1, star2),
+                                                      2 * jupiter_orbit.a, 2 * binary_orbit.a),
+                                  5 * Q);
 
     double V = sqrt(-M_tot(sun, jupiter, star1, star2) / A);
 
