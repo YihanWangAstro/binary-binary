@@ -1,4 +1,4 @@
-all: binary-binary
+all: binary-binary binary-single
 
 VPATH =${MY_REPO_PATH}/SpaceX:${MY_REPO_PATH}/SpaceHub/src/
 CXX = g++
@@ -16,6 +16,8 @@ INCL = dynamicSystem.h macros.h chain.h\
 binary-binary : $(OBJS) binary-binary.o
 	$(CXX) -std=c++17 -O3 -o spacehub.ex $(OBJS) binary-binary.o -pthread
 
+binary-single : $(OBJS) binary-single.o
+	$(CXX) -std=c++17 -O3 -o binary-single.ex $(OBJS) binary-single.o -pthread
 
 $(OBJS) : $(INCL)
 .PHONY : clean	
