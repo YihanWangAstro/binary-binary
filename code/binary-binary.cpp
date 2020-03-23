@@ -14,7 +14,7 @@ double v_inf = 10_kms;
 
 // double num_den = 500;
 
-auto collision = [](auto &ptc) -> bool {
+auto collision = [](auto &ptc, auto dt) -> bool {
   size_t number = ptc.number();
   for (size_t i = 0; i < number; ++i) {
     for (size_t j = i + 1; j < number; ++j) {
@@ -40,7 +40,7 @@ auto post_ae = [](auto const &ptc) {
   return std::make_tuple(a_j, e_j, a_s, e_s);
 };
 
-auto jupiter_ejection = [](auto const &ptc) -> bool {
+auto jupiter_ejection = [](auto const &ptc, auto dt) -> bool {
   auto const &star = ptc[0];
 
   auto const &jup = ptc[1];
@@ -139,7 +139,7 @@ void binary_binary_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
     spacex::SpaceXsim::RunArgs args;
 
     if constexpr (coll_detect) {
-      args.add_stop_condition([&](auto &ptc) -> bool {
+      args.add_stop_condition([&](auto &ptc, auto dt) -> bool {
         size_t number = ptc.number();
         for (size_t i = 0; i < number; ++i) {
           for (size_t j = i + 1; j < number; ++j) {
@@ -155,7 +155,7 @@ void binary_binary_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
 
     args.add_stop_condition(end_time);
 
-    args.add_stop_point_operation([&](auto &ptc) {
+    args.add_stop_point_operation([&](auto &ptc, auto dt) {
       auto [a_j, e_j, a_s, e_s] = post_ae(ptc);
 
       space::display(out_file, i, w, is_collided, a_j, e_j, a_s, e_s);

@@ -1,4 +1,4 @@
-all: binary-binary binary-single
+all: binary-binary binary-single v-dist
 
 VPATH =${MY_REPO_PATH}/SpaceX:${MY_REPO_PATH}/SpaceHub/src/
 CXX = g++
@@ -18,6 +18,9 @@ binary-binary : $(OBJS) binary-binary.o
 
 binary-single : $(OBJS) binary-single.o
 	$(CXX) -std=c++17 -O3 -o binary-single.ex $(OBJS) binary-single.o -pthread
+
+v-dist: $(OBJS) v-dist.o
+	$(CXX) -std=c++17 -O3 -o v-dist.ex $(OBJS) v-dist.o -pthread
 
 $(OBJS) : $(INCL)
 .PHONY : clean	
