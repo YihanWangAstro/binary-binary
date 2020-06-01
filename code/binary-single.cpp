@@ -85,6 +85,12 @@ auto create_iso_jupiter_system() {
 
   return std::make_tuple(sun, jupiter, jupiter_orbit);
 }*/
+template <typename Ptc>
+inline auto impulse(Ptc const &p1, Ptc const &p2, double dt) {
+  auto dr = p2.pos - p1.pos;
+  auto r = norm(dr);
+  return (dt * p1.m * p2.m / (r * r * r)) * dr;
+}
 
 void binary_single_Adrain(size_t th_id, std::string const &dir, size_t sim_num, double a_s, double E, double Q) {
   char name[100];
@@ -117,7 +123,8 @@ void binary_single_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
 
     double B = -A * sqrt(E * E - 1);
 
-    auto const in_orbit = orbit::HyperOrbit(M_tot(sun, jupiter), star1.mass, V, B, w, 0, 0, r_start, orbit::Hyper::in);
+    auto const in_orbit =
+        orbit::HyperOrbit(M_tot(sun, jupiter), star1.mass, V, B, w, 0.0, 0.0, r_start, orbit::Hyper::in);
 
     move_particles(in_orbit, star1);
 
@@ -127,30 +134,39 @@ void binary_single_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
 
     spacex::SpaceXsim::RunArgs args;
 
-    if constexpr (coll_detect) {
-      args.add_stop_condition([&](auto &ptc, auto dt) -> bool {
-        size_t number = ptc.number();
-        for (size_t i = 0; i < number; ++i) {
-          for (size_t j = i + 1; j < number; ++j) {
-            if (ptc.Collide(i, j)) {
-              is_collided = true;
-              return true;
-            }
+    Vector3d I(0, 0, 0);
+    Vector3d It(0, 0, 0);
+
+    args.add_post_step_operation([&](auto &ptc, auto dt) {
+      auto I_tmp = impulse(ptc[1], ptc[2], dt);
+
+      I += impulse(ptc[1], ptc[0], dt);
+      I += I_tmp;
+      It += I_tmp;
+    });
+
+    args.add_stop_condition([&](auto &ptc, auto dt) -> bool {
+      size_t number = ptc.number();
+      for (size_t i = 0; i < number; ++i) {
+        for (size_t j = i + 1; j < number; ++j) {
+          if (ptc.Collide(i, j)) {
+            is_collided = true;
+            return true;
           }
         }
-        return false;
-      });
-    }
+      }
+      return false;
+    });
 
     args.add_stop_condition(end_time);
 
     args.add_stop_point_operation([&](auto &ptc, auto dt) {
       auto [a_j, e_j] = post_ae(ptc);
 
-      space::display(out_file, i, w, is_collided, a_j, e_j);
+      space::display(out_file, i, w, is_collided, a_j, e_j, I, It);
       out_file << std::endl;
 
-      space::display(state_file, i, w, is_collided, ptc, "\r\n");
+      space::display(state_file, i, w, is_collided, ptc, I, It, "\r\n");
     });
 
     spacex::SpaceXsim simulator{0, sun, jupiter, star1};
