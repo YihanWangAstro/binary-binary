@@ -109,7 +109,7 @@ void binary_single_Adrain(size_t th_id, std::string const &dir, size_t sim_num, 
   for (size_t i = 0; i < sim_num; ++i) {
     bool is_collided = false;
 
-    Particle star1{1_Ms, 1_Rs};
+    Particle star1{2_Ms, 1.68_Rs};
 
     auto [sun, jupiter, jupiter_orbit] = create_jupiter_system(inc);
 
