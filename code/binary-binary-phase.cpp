@@ -111,8 +111,7 @@ int main(int argc, char **argv) {
 
   tools::read_command_line(argc, argv, output_dir, sim_num, a, v_inf);
 
-  b_phase *= 0.5 * consts::pi;
   v_inf *= kms;
 
-  auto_indexed_multi_thread(binary_binary_Adrain_phase, output_dir, sim_num, a, v_inf, b_phase);
+  auto_indexed_multi_thread(binary_binary_Adrain_phase, output_dir, sim_num, a, v_inf);
 }
