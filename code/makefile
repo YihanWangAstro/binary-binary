@@ -1,4 +1,4 @@
-all: binary-binary binary-single v-dist
+all: binary-binary binary-single v-dist bs-phase bb-phase
 
 VPATH =${MY_REPO_PATH}/SpaceX:${MY_REPO_PATH}/SpaceHub/src/
 CXX = g++
@@ -18,6 +18,12 @@ binary-binary : $(OBJS) binary-binary.o
 
 binary-single : $(OBJS) binary-single.o
 	$(CXX) -std=c++17 -O3 -o binary-single.ex $(OBJS) binary-single.o -pthread
+
+bb-phase : $(OBJS) binary-binary-phase.o
+	$(CXX) -std=c++17 -O3 -o bb-phase.ex $(OBJS) binary-binary-phase.o -pthread
+
+bs-phase : $(OBJS) binary-single-phase.o
+	$(CXX) -std=c++17 -O3 -o bs-phase.ex $(OBJS) binary-single-phase.o -pthread
 
 v-dist: $(OBJS) v-dist.o
 	$(CXX) -std=c++17 -O3 -o v-dist.ex $(OBJS) v-dist.o -pthread
