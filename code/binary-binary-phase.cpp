@@ -30,10 +30,9 @@ auto create_jupiter_system(double anomaly) {
   return std::make_tuple(sun, jupiter, jupiter_orbit);
 }
 
-void binary_binary_Adrain_phase(size_t th_id, std::string const &dir, size_t sim_num, double a_s, double v_inf,
-                                double b_phase) {
+void binary_binary_Adrain_phase(size_t th_id, std::string const &dir, size_t sim_num, double a_s, double v_inf) {
   char name[100];
-  sprintf(name, "%.0lf-%.2lf-%.2lf-%d.txt", a_s, v_inf / kms, b_phase, static_cast<int>(th_id));
+  sprintf(name, "%.0lf-%.2lf-%d.txt", a_s, v_inf / kms, static_cast<int>(th_id));
 
   std::fstream out_file{dir + "two-binaries-phase-" + name, std::fstream::out};
 
@@ -41,6 +40,8 @@ void binary_binary_Adrain_phase(size_t th_id, std::string const &dir, size_t sim
     double Q = random::Uniform(0, Q_max);
 
     double anomaly = random::Uniform(0, 2 * consts::pi);
+
+    double b_phase = 0.5 * consts::pi * static_cast<int>(random::Uniform(0, 4));
 
     bool is_collided = false;
 
@@ -93,7 +94,7 @@ void binary_binary_Adrain_phase(size_t th_id, std::string const &dir, size_t sim
     args.add_stop_condition(end_time);
 
     args.add_stop_point_operation([&](auto &ptc, auto dt) {
-      space::display(out_file, i, w, Q, anomaly, is_collided, coll_i, coll_j, ptc, "\r\n");
+      space::display(out_file, i, w, Q, anomaly, is_collided, coll_i, coll_j, ptc, b_phase, "\r\n");
     });
 
     spacex::SpaceXsim simulator{0, sun, jupiter, star1, star2};
@@ -107,8 +108,8 @@ int main(int argc, char **argv) {
   std::string output_dir;
   double a = 1;
   double v_inf = 1;
-  double b_phase = 0;
-  tools::read_command_line(argc, argv, output_dir, sim_num, a, v_inf, b_phase);
+
+  tools::read_command_line(argc, argv, output_dir, sim_num, a, v_inf);
 
   b_phase *= 0.5 * consts::pi;
   v_inf *= kms;
