@@ -30,18 +30,33 @@ auto create_jupiter_system(double anomaly) {
   return std::make_tuple(sun, jupiter, jupiter_orbit);
 }
 
+double anomaly_at_peri(double finf, double t, double M, double a) {
+  double T = 2 * consts::pi * sqrt(a * a * a / M);
+  double df = 2 * consts::pi * (t / T - static_cast<int>(t / T));
+  double f = finf + df;
+  return 2 * consts::pi * (f / (2 * consts::pi) - static_cast<int>(f / (2 * consts::pi)));
+}
+
 void binary_binary_Adrain_phase(size_t th_id, std::string const &dir, size_t sim_num, double a_s, double v_inf) {
   char name[100];
   sprintf(name, "%.0lf-%.2lf-%d.txt", a_s, v_inf / kms, static_cast<int>(th_id));
 
-  std::fstream out_file{dir + "two-binaries-phase-" + name, std::fstream::out};
+  std::fstream phase_file0{dir + "bb-out0-" + name, std::fstream::out};
+
+  std::fstream phase_file1{dir + "bb-out1-" + name, std::fstream::out};
+
+  std::fstream phase_file2{dir + "bb-out2-" + name, std::fstream::out};
+
+  std::fstream phase_file3{dir + "bb-out3-" + name, std::fstream::out};
 
   for (size_t i = 0; i < sim_num; ++i) {
-    double Q = random::Uniform(0, Q_max);
+    double Q = random::Uniform(-Q_max, Q_max);
 
     double anomaly = random::Uniform(0, 2 * consts::pi);
 
-    double b_phase = 0.5 * consts::pi * static_cast<int>(random::Uniform(0, 4));
+    int phase_idx = static_cast<int>(random::Uniform(0, 4));
+
+    double b_phase = 0.5 * consts::pi * phase_idx;
 
     bool is_collided = false;
 
@@ -57,11 +72,11 @@ void binary_binary_Adrain_phase(size_t th_id, std::string const &dir, size_t sim
 
     move_particles(binary_orbit, star2);
 
-    auto const w = consts::pi * static_cast<int>(random::Uniform(0, 2));  // random::Uniform(0, 2 * consts::pi);
+    auto const w = 0.0 + static_cast<int>(Q < 0) * consts::pi;
 
     double A = -M_tot(sun, jupiter, star1, star2) / (v_inf * v_inf);
 
-    double E = 1 - Q / A;
+    double E = 1 - fabs(Q) / A;
 
     double B = -A * sqrt(E * E - 1);
 
@@ -73,6 +88,8 @@ void binary_binary_Adrain_phase(size_t th_id, std::string const &dir, size_t sim
     move_to_COM_frame(sun, jupiter, star1, star2);
 
     double end_time = 2 * time_to_periapsis(cluster(sun, jupiter), cluster(star1, star2));
+
+    double anomaly_p = anomaly_at_peri(anomaly, end_time / 2, sun.mass + jupiter.mass, jupiter_orbit.a);
 
     spacex::SpaceXsim::RunArgs args;
 
@@ -94,7 +111,18 @@ void binary_binary_Adrain_phase(size_t th_id, std::string const &dir, size_t sim
     args.add_stop_condition(end_time);
 
     args.add_stop_point_operation([&](auto &ptc, auto dt) {
-      space::display(out_file, i, w, Q, anomaly, is_collided, coll_i, coll_j, ptc, b_phase, "\r\n");
+      auto out = scattering::to_hierarchical(ptc);
+      if (phase_idx == 0) {
+        space::display(phase_file0, i, w, Q, anomaly, anomaly_p, is_collided, coll_i, coll_j, out, "\r\n");
+      } else if (phase_idx == 1) {
+        space::display(phase_file1, i, w, Q, anomaly, anomaly_p, is_collided, coll_i, coll_j, out, "\r\n");
+      } else if (phase_idx == 2) {
+        space::display(phase_file2, i, w, Q, anomaly, anomaly_p, is_collided, coll_i, coll_j, out, "\r\n");
+      } else if (phase_idx == 3) {
+        space::display(phase_file3, i, w, Q, anomaly, anomaly_p, is_collided, coll_i, coll_j, out, "\r\n");
+      } else {
+        std::cout << "wrong binary sep" << std::endl;
+      }
     });
 
     spacex::SpaceXsim simulator{0, sun, jupiter, star1, star2};
