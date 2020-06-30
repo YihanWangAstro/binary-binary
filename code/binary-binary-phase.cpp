@@ -8,9 +8,9 @@ USING_NAMESPACE_SPACEHUB_ALL;
 
 double v_inf = 1_kms;
 
-constexpr double Q_max = 100_AU;
+constexpr double Q_max = 40_AU;
 
-constexpr double r_start = 1000_AU;
+constexpr double r_start = 500_AU;
 
 auto create_jupiter_system(double anomaly) {
   double a_jup = 5.2_AU;
@@ -112,6 +112,7 @@ void binary_binary_Adrain_phase(size_t th_id, std::string const &dir, size_t sim
 
     args.add_stop_point_operation([&](auto &ptc, auto dt) {
       auto out = scattering::to_hierarchical(ptc);
+      // std::cout << out << std::endl;
       if (phase_idx == 0) {
         space::display(phase_file0, i, w, Q, anomaly, anomaly_p, is_collided, coll_i, coll_j, out, "\r\n");
       } else if (phase_idx == 1) {

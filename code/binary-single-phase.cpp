@@ -8,9 +8,9 @@ USING_NAMESPACE_SPACEHUB_ALL;
 
 double v_inf = 1_kms;
 
-constexpr double Q_max = 100_AU;
+constexpr double Q_max = 40_AU;
 
-constexpr double r_start = 1000_AU;
+constexpr double r_start = 500_AU;
 
 auto create_jupiter_system(double anomaly) {
   double a_jup = 5.2_AU;
